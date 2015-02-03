@@ -40,6 +40,8 @@ public slots:
   // View
   void on_actionView_Delaunay_edges_toggled();
   void on_actionView_Voronoi_edges_toggled();
+  void on_actionConvexHull_toggled();
+  void on_actionDrawCentroids_toggled();
 
   // algorithms
   void on_actionLloyd_triggered();

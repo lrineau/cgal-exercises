@@ -50,6 +50,8 @@
     </property>
     <addaction name="actionView_Delaunay_edges"/>
     <addaction name="actionView_Voronoi_edges"/>
+    <addaction name="actionConvexHull"/>
+    <addaction name="actionDrawCentroids"/>
    </widget>
    <widget class="QMenu" name="menuAlgorithms">
     <property name="title">
@@ -98,6 +100,20 @@
     <string>D</string>
    </property>
   </action>
+  <action name="actionConvexHull">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Draw &amp;convex hull edges in red</string>
+   </property>
+   <property name="shortcut">
+    <string>C</string>
+   </property>
+  </action>
   <action name="actionView_Voronoi_edges">
    <property name="checkable">
     <bool>true</bool>
@@ -126,6 +142,14 @@
    </property>
    <property name="shortcut">
     <string>R</string>
+   </property>
+  </action>
+  <action name="actionDrawCentroids">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Draw &amp;centroids of Voronoi cell</string>
    </property>
   </action>
  </widget>

@@ -67,6 +67,18 @@ void MainWindow::on_actionView_Voronoi_edges_toggled()
   update();
 }
 
+void MainWindow::on_actionConvexHull_toggled()
+{
+  m_scene->toggle_convex_hull_in_red();
+  update();
+}
+
+void MainWindow::on_actionDrawCentroids_toggled()
+{
+  m_scene->toggle_draw_centroids();
+  update();
+}
+
 void MainWindow::on_actionLloyd_triggered()
 {
   m_scene->lloyd();

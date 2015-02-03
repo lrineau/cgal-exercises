@@ -96,18 +96,25 @@ public:
   void gl_draw_generators(const float point_size,
 			  const unsigned char red,
 			  const unsigned char green,
-			  const unsigned char blue)
+			  const unsigned char blue,
+			  Point m_mouse_pos)
   {
-    ::glColor3ub(red, green, blue);
     ::glPointSize(point_size);
+    Vertex_handle v = Dt2::nearest_vertex(m_mouse_pos);
 
     ::glBegin(GL_POINTS);
-    typename Dt2::Point_iterator it;
-    for(it = Dt2::points_begin(); 
-	it != Dt2::points_end(); 
-	it++)
+    typename Dt2::Finite_vertices_iterator vit;
+    for(vit = Dt2::finite_vertices_begin();
+	vit != Dt2::finite_vertices_end();
+	vit++)
     {
-      const Point& p = *it;
+      const Point& p = vit->point();
+      if((Vertex_handle)vit == v) {
+	::glColor3ub(255, 0, 0);
+      }
+      else {
+	::glColor3ub(red, green, blue);
+      }
       ::glVertex2f(p.x(), p.y());
     }
     ::glEnd();
@@ -117,9 +124,9 @@ public:
   void gl_draw_delaunay_edges(const float line_width,
 			      const unsigned char red,
 			      const unsigned char green,
-			      const unsigned char blue)
+			      const unsigned char blue,
+			      bool convex_hull_in_red)
   {
-    ::glColor3ub(red, green, blue);
     ::glLineWidth(line_width);
 
     ::glBegin(GL_LINES);
@@ -128,6 +135,16 @@ public:
 	hEdge != Dt2::edges_end(); 
 	hEdge++) 
     {
+      if(convex_hull_in_red &&
+	 Dt2::dimension() == 2 &&
+	 ( Dt2::is_infinite(hEdge->first) ||
+	   Dt2::is_infinite(hEdge->first->neighbor(hEdge->second)) )
+	 )
+      {
+	::glColor3ub(255, 0, 0);
+      } else {
+	::glColor3ub(red, green, blue);
+      }
       const Point& p1 = (*hEdge).first->vertex(Dt2::ccw((*hEdge).second))->point();
       const Point& p2 = (*hEdge).first->vertex(Dt2::cw((*hEdge).second))->point();
       ::glVertex2d(p1.x(), p1.y());
@@ -145,7 +162,50 @@ public:
     ::glColor3ub(red, green, blue);
     ::glLineWidth(line_width);
 
-    // TO COMPLETE
+    typedef typename Kernel::Iso_rectangle_2 Rectangle;
+    const Rectangle rect(viewer->x_min(),
+			 viewer->y_min(),
+			 viewer->x_max(),
+			 viewer->y_max());
+    ::glBegin(GL_LINES);
+    for (typename Dt2::Finite_edges_iterator
+	   eit = this->finite_edges_begin(), end = this->finite_edges_end();
+	 eit != end; ++eit)
+    {
+      CGAL::Object o = this->dual(eit);
+      Line    l;
+      Ray     r;
+      Segment s;
+      bool s_is_initialized = false;
+
+      using CGAL::cpp11::result_of;
+      typedef typename Kernel::Intersect_2 Intersect_2;
+
+      if (CGAL::assign(l,o)) {
+	typename result_of<Intersect_2(Line, Rectangle)>::type inter =
+	  CGAL::intersection(l, rect);
+	if(inter) {
+	  if(const Segment* s_ptr = boost::get<Segment>(&*inter)) {
+	    s = *s_ptr;
+	    s_is_initialized = true;
+	  }
+	}
+      } else if (CGAL::assign(r,o)) {
+	typename result_of<Intersect_2(Ray, Rectangle)>::type inter =
+	  CGAL::intersection(r, rect);
+	if(inter) {
+	  if(const Segment* s_ptr = boost::get<Segment>(&*inter)) {
+	    s = *s_ptr;
+	    s_is_initialized = true;
+	  }
+	}
+      }
+      if (s_is_initialized || CGAL::assign(s,o)) {
+	::glVertex2d(s.source().x(), s.source().y());
+	::glVertex2d(s.target().x(), s.target().y());
+      }
+    }
+    ::glEnd();
   }
 };
 
